@@ -1,264 +1,122 @@
-# import pygame library
-import pygame
+import json   #imports the array from a universal file
 
-# initialise the pygame font
-pygame.font.init()
+list = []
 
-# Total window
-screen = pygame.display.set_mode((500, 600))
+with open('puzzle.json', 'r') as f:
+    list = json.loads(f.read()) 
 
-# Title and Icon
-pygame.display.set_caption("SUDOKU SOLVER USING BACKTRACKING")
-img = pygame.image.load('icon.png')
-pygame.display.set_icon(img)
+def outputPuzzle(sudoku):
+  s = []
 
-x = 0
-y = 0
-dif = 500 / 9
-val = 0
-# Default Sudoku Board.
-grid =[
-		[7, 8, 0, 4, 0, 0, 1, 2, 0],
-		[6, 0, 0, 0, 7, 5, 0, 0, 9],
-		[0, 0, 0, 6, 0, 1, 0, 7, 8],
-		[0, 0, 7, 0, 4, 0, 2, 6, 0],
-		[0, 0, 1, 0, 5, 0, 9, 3, 0],
-		[9, 0, 4, 0, 6, 0, 0, 0, 5],
-		[0, 7, 0, 3, 0, 0, 0, 1, 2],
-		[1, 2, 0, 0, 0, 7, 4, 0, 0],
-		[0, 4, 9, 2, 0, 6, 0, 0, 7]
-	]
+  for row in sudoku:
+    temp_row = []
+    for item in row: # makes the 0's blanks 
+      temp_row.append(" " if item == 0 else item)
 
-# Load test fonts for future use
-font1 = pygame.font.SysFont("comicsans", 40)
-font2 = pygame.font.SysFont("comicsans", 20)
-def get_cord(pos):
-	global x
-	x = pos[0]//dif
-	global y
-	y = pos[1]//dif
+    s.append(temp_row)
 
-# Highlight the cell selected
-def draw_box():
-	for i in range(2):
-		pygame.draw.line(screen, (255, 0, 0), (x * dif-3, (y + i)*dif), (x * dif + dif + 3, (y + i)*dif), 7)
-		pygame.draw.line(screen, (255, 0, 0), ( (x + i)* dif, y * dif ), ((x + i) * dif, y * dif + dif), 7)
+  print("+-------+-------+-------+")
 
-# Function to draw required lines for making Sudoku grid		
-def draw():
-	# Draw the lines
-		
-	for i in range (9):
-		for j in range (9):
-			if grid[i][j]!= 0:
+  print("|", s[0][0], s[0][1], s[0][2], "|", s[0][3], s[0][4], s[0][5], "|", s[0][6], s[0][7], s[0][8], "|") # creates the sudoku puzzle
+  print("|", s[1][0], s[1][1], s[1][2], "|", s[1][3], s[1][4], s[1][5], "|", s[1][6], s[1][7], s[1][8], "|")
+  print("|", s[2][0], s[2][1], s[2][2], "|", s[2][3], s[2][4], s[2][5], "|", s[2][6], s[2][7], s[2][8], "|")
 
-				# Fill blue color in already numbered grid
-				pygame.draw.rect(screen, (0, 153, 153), (i * dif, j * dif, dif + 1, dif + 1))
+  print("|-------+-------|-------|")
 
-				# Fill grid with default numbers specified
-				text1 = font1.render(str(grid[i][j]), 1, (0, 0, 0))
-				screen.blit(text1, (i * dif + 15, j * dif + 15))
-	# Draw lines horizontally and verticallyto form grid		
-	for i in range(10):
-		if i % 3 == 0 :
-			thick = 7
-		else:
-			thick = 1
-		pygame.draw.line(screen, (0, 0, 0), (0, i * dif), (500, i * dif), thick)
-		pygame.draw.line(screen, (0, 0, 0), (i * dif, 0), (i * dif, 500), thick)	
+  print("|", s[3][0], s[3][1], s[3][2], "|", s[3][3], s[3][4], s[3][5], "|", s[3][6], s[3][7], s[3][8], "|")
+  print("|", s[4][0], s[4][1], s[4][2], "|", s[4][3], s[4][4], s[4][5], "|", s[4][6], s[4][7], s[4][8], "|")
+  print("|", s[5][0], s[5][1], s[5][2], "|", s[5][3], s[5][4], s[5][5], "|", s[5][6], s[5][7], s[5][8], "|")
+  
+  print("+-------+-------+-------+")
 
-# Fill value entered in cell	
-def draw_val(val):
-	text1 = font1.render(str(val), 1, (0, 0, 0))
-	screen.blit(text1, (x * dif + 15, y * dif + 15))
+  print("|", s[6][0], s[6][1], s[6][2], "|", s[6][3], s[6][4], s[6][5], "|", s[6][6], s[6][7], s[6][8], "|")
+  print("|", s[7][0], s[7][1], s[7][2], "|", s[7][3], s[7][4], s[7][5], "|", s[7][6], s[7][7], s[7][8], "|")
+  print("|", s[8][0], s[8][1], s[8][2], "|", s[8][3], s[8][4], s[0][5], "|", s[8][6], s[8][7], s[8][8], "|")
+  
+  print("+-------+-------+-------+")
 
-# Raise error when wrong value entered
-def raise_error1():
-	text1 = font1.render("WRONG !!!", 1, (0, 0, 0))
-	screen.blit(text1, (20, 570))
-def raise_error2():
-	text1 = font1.render("Wrong !!! Not a valid Key", 1, (0, 0, 0))
-	screen.blit(text1, (20, 570))
+def genPossibleValues(sudoku):
+  temp_board = []
 
-# Check if the value entered in board is valid
-def valid(m, i, j, val):
-	for it in range(9):
-		if m[i][it]== val:
-			return False
-		if m[it][j]== val:
-			return False
-	it = i//3
-	jt = j//3
-	for i in range(it * 3, it * 3 + 3):
-		for j in range (jt * 3, jt * 3 + 3):
-			if m[i][j]== val:
-				return False
-	return True
+  for row in sudoku:
+    temp_row = []
+    for item in row:
+      if item == 0:
+        temp = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        for i in temp:
+          if i in row:
+            temp.remove(i)
+      else:
+        temp = [item]
+      temp_row.append(temp)
+    temp_board.append(temp_row)
+      
+  return temp_board
 
-# Solves the sudoku board using Backtracking Algorithm
-def solve(grid, i, j):
-	
-	while grid[i][j]!= 0:
-		if i<8:
-			i+= 1
-		elif i == 8 and j<8:
-			i = 0
-			j+= 1
-		elif i == 8 and j == 8:
-			return True
-	pygame.event.pump()
-	for it in range(1, 10):
-		if valid(grid, i, j, it)== True:
-			grid[i][j]= it
-			global x, y
-			x = i
-			y = j
-			# white color background\
-			screen.fill((255, 255, 255))
-			draw()
-			draw_box()
-			pygame.display.update()
-			pygame.time.delay(20)
-			if solve(grid, i, j)== 1:
-				return True
-			else:
-				grid[i][j]= 0
-			# white color background\
-			screen.fill((255, 255, 255))
-		
-			draw()
-			draw_box()
-			pygame.display.update()
-			pygame.time.delay(50)
-	return False
+def validRow(row):
+  temp = [1,2,3,4,5,6,7,8,9]
 
-# Display instruction for the game
-def instruction():
-	text1 = font2.render("PRESS D TO RESET TO DEFAULT / R TO EMPTY", 1, (0, 0, 0))
-	text2 = font2.render("ENTER VALUES AND PRESS ENTER TO VISUALIZE", 1, (0, 0, 0))
-	screen.blit(text1, (20, 520))	
-	screen.blit(text2, (20, 540))
+  for item in row:
+    try:
+      temp.remove(item)
+    except ValueError:
+      return False
 
-# Display options when solved
-def result():
-	text1 = font1.render("FINISHED PRESS R or D", 1, (0, 0, 0))
-	screen.blit(text1, (20, 570))
-run = True
-flag1 = 0
-flag2 = 0
-rs = 0
-error = 0
-# The loop thats keep the window running
-while run:
-	
-	# White color background
-	screen.fill((255, 255, 255))
-	# Loop through the events stored in event.get()
-	for event in pygame.event.get():
-		# Quit the game window
-		if event.type == pygame.QUIT:
-			run = False
-		# Get the mouse position to insert number
-		if event.type == pygame.MOUSEBUTTONDOWN:
-			flag1 = 1
-			pos = pygame.mouse.get_pos()
-			get_cord(pos)
-		# Get the number to be inserted if key pressed
-		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_LEFT:
-				x-= 1
-				flag1 = 1
-			if event.key == pygame.K_RIGHT:
-				x+= 1
-				flag1 = 1
-			if event.key == pygame.K_UP:
-				y-= 1
-				flag1 = 1
-			if event.key == pygame.K_DOWN:
-				y+= 1
-				flag1 = 1
-			if event.key == pygame.K_1:
-				val = 1
-			if event.key == pygame.K_2:
-				val = 2
-			if event.key == pygame.K_3:
-				val = 3
-			if event.key == pygame.K_4:
-				val = 4
-			if event.key == pygame.K_5:
-				val = 5
-			if event.key == pygame.K_6:
-				val = 6
-			if event.key == pygame.K_7:
-				val = 7
-			if event.key == pygame.K_8:
-				val = 8
-			if event.key == pygame.K_9:
-				val = 9
-			if event.key == pygame.K_RETURN:
-				flag2 = 1
-			# If R pressed clear the sudoku board
-			if event.key == pygame.K_r:
-				rs = 0
-				error = 0
-				flag2 = 0
-				grid =[
-				[0, 0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0, 0],
-				[0, 0, 0, 0, 0, 0, 0, 0, 0]
-				]
-			# If D is pressed reset the board to default
-			if event.key == pygame.K_d:
-				rs = 0
-				error = 0
-				flag2 = 0
-				grid =[
-					[7, 8, 0, 4, 0, 0, 1, 2, 0],
-					[6, 0, 0, 0, 7, 5, 0, 0, 9],
-					[0, 0, 0, 6, 0, 1, 0, 7, 8],
-					[0, 0, 7, 0, 4, 0, 2, 6, 0],
-					[0, 0, 1, 0, 5, 0, 9, 3, 0],
-					[9, 0, 4, 0, 6, 0, 0, 0, 5],
-					[0, 7, 0, 3, 0, 0, 0, 1, 2],
-					[1, 2, 0, 0, 0, 7, 4, 0, 0],
-					[0, 4, 9, 2, 0, 6, 0, 0, 7]
-				]
-	if flag2 == 1:
-		if solve(grid, 0, 0)== False:
-			error = 1
-		else:
-			rs = 1
-		flag2 = 0
-	if val != 0:		
-		draw_val(val)
-		# print(x)
-		# print(y)
-		if valid(grid, int(x), int(y), val)== True:
-			grid[int(x)][int(y)]= val
-			flag1 = 0
-		else:
-			grid[int(x)][int(y)]= 0
-			raise_error2()
-		val = 0
-	
-	if error == 1:
-		raise_error1()
-	if rs == 1:
-		result()	
-	draw()
-	if flag1 == 1:
-		draw_box()	
-	instruction()
+  return len(temp) == 0
 
-	# Update window
-	pygame.display.update()
+def validBoard(board):
+  for row in board:
+    if not validRow(row):
+      return False
+    
+  for column in range(9):
+    temp = [1,2,3,4,5,6,7,8,9]
+    for i in range(9):
+      try:
+        temp.remove(board[i][column])
+      except ValueError:
+        return False
+    if len(temp) != 0:
+      return False
 
-# Quit pygame window
-pygame.quit()	
-	
+  return True
+
+def genPossibleRows(possibleItems):
+  temp_board = []
+
+  for row in possibleItems:
+    temp_row = []
+    for i1 in row[0]:
+      for i2 in row[1]:
+        for i3 in row[2]:
+          for i4 in row[3]:
+            for i5 in row[4]:
+              for i6 in row[5]:
+                for i7 in row[6]:
+                  for i8 in row[7]:
+                    for i9 in row[8]:
+                      if validRow([i1, i2, i3, i4, i5, i6, i7, i8, i9]):
+                        temp_row.append([i1, i2, i3, i4, i5, i6, i7, i8, i9])
+
+    temp_board.append(temp_row)
+      
+  return temp_board
+
+def genPossibleBoard(row):
+  temp_board = []
+
+  for i1 in row[0]:
+    for i2 in row[1]:
+      for i3 in row[2]:
+        for i4 in row[3]:
+          for i5 in row[4]:
+            for i6 in row[5]:
+              for i7 in row[6]:
+                for i8 in row[7]:
+                  for i9 in row[8]:
+                    if validBoard([i1, i2, i3, i4, i5, i6, i7, i8, i9]):
+                      temp_board.append([i1, i2, i3, i4, i5, i6, i7, i8, i9])
+      
+  return temp_board
+
+print(outputPuzzle(list))
