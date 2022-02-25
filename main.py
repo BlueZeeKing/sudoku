@@ -1,9 +1,10 @@
 import json   #imports the array from a universal file
+import numpy as np
 
 list = []
 
 with open('puzzle.json', 'r') as f:
-    list = json.loads(f.read()) 
+    list = np.array(json.loads(f.read()))
 
 def outputPuzzle(sudoku):
   s = []
@@ -119,4 +120,4 @@ def genPossibleBoard(row):
       
   return temp_board
 
-print(outputPuzzle(list))
+outputPuzzle(list)
