@@ -95,26 +95,7 @@ def genPossibleRowValues(sudoku):
   return np.array(temp_board, dtype=object)
 
 def genPossibleColumnValues(s):
-  board = s.transpose()
-  temp_board = []
-
-  for column in board:
-    temp_column = []
-    for item in column:
-      if item == 0:
-        temp = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        for i in temp:
-          if i in column:
-            temp[temp.index(i)] = 0
-
-        while 0 in temp:
-          temp.remove(0)
-      else:
-        temp = [item]
-      temp_column.append(temp)
-    temp_board.append(temp_column)
-      
-  return np.array(temp_board, dtype=object).transpose()
+  return genPossibleRowValues(s.transpose()).transpose()
 
 def genPossibleSquareValues(board):
   temp_board = []
@@ -137,7 +118,6 @@ def genPossibleSquareValues(board):
     temp_board.append(temp_row)
       
   return np.array(temp_board, dtype=object)
-
 
 
 def genPossibleRows(possibleItems):
