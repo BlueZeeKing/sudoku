@@ -116,4 +116,71 @@ for x, column in enumerate(possibleColumnValues):
 
     possibleValues[x, y] = temp
 
-print(possibleValues)
+
+def validRow(row):
+  temp = [1,2,3,4,5,6,7,8,9]
+
+  for item in row:
+    try:
+      temp.remove(item)
+    except ValueError:
+      return False
+
+  return len(temp) == 0
+
+def validBoard(board):
+  for row in board:
+    if not validRow(row):
+      return False
+
+  for column in range(9):
+    temp = [1,2,3,4,5,6,7,8,9]
+    for i in range(9):
+      try:
+        temp.remove(board[i][column])
+      except ValueError:
+        return False
+    if len(temp) != 0:
+      return False
+
+  return True
+
+def genPossibleRows(possibleItems):
+  temp_board = []
+
+  for row in possibleItems:
+    temp_row = []
+    for i1 in row[0]:
+      for i2 in row[1]:
+        for i3 in row[2]:
+          for i4 in row[3]:
+            for i5 in row[4]:
+              for i6 in row[5]:
+                for i7 in row[6]:
+                  for i8 in row[7]:
+                    for i9 in row[8]:
+                      if validRow([i1, i2, i3, i4, i5, i6, i7, i8, i9]):
+                        temp_row.append([i1, i2, i3, i4, i5, i6, i7, i8, i9])
+
+    temp_board.append(temp_row)
+
+  return temp_board
+
+def genPossibleBoard(row):
+  temp_board = []
+
+  for i1 in row[0]:
+    for i2 in row[1]:
+      for i3 in row[2]:
+        for i4 in row[3]:
+          for i5 in row[4]:
+            for i6 in row[5]:
+              for i7 in row[6]:
+                for i8 in row[7]:
+                  for i9 in row[8]:
+                    if validBoard([i1, i2, i3, i4, i5, i6, i7, i8, i9]):
+                      temp_board.append([i1, i2, i3, i4, i5, i6, i7, i8, i9])
+
+  return temp_board
+outputPuzzle(list)
+outputPuzzle(genPossibleBoard(genPossibleRows(possibleValues))[0])
