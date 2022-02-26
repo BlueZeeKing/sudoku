@@ -1,11 +1,6 @@
 import json   #imports the array from a universal file
 import numpy as np
 
-list = []
-
-with open('puzzle.json', 'r') as f:
-    list = np.array(json.loads(f.read()))
-
 def outputPuzzle(sudoku):
   s = []
 
@@ -35,6 +30,48 @@ def outputPuzzle(sudoku):
   print("|", s[8][0], s[8][1], s[8][2], "|", s[8][3], s[8][4], s[0][5], "|", s[8][6], s[8][7], s[8][8], "|")
   
   print("+-------+-------+-------+")
+
+
+def validList(array):
+  temp = [1,2,3,4,5,6,7,8,9]
+
+  for item in array:
+    try:
+      temp.remove(item)
+    except ValueError:
+      return False
+
+  return len(temp) == 0
+
+def validBoard(board):
+  for row in board:
+    if not validList(row):
+      return False
+
+  verticalBoard = board.transpose()
+
+  for column in verticalBoard:
+    if not validList(column):
+      return False
+
+  squareBoard = [
+    board[0:3, 0:3].reshape(9),
+    board[0:3, 3:6].reshape(9),
+    board[0:3, 6:9].reshape(9),
+    board[3:6, 0:3].reshape(9),
+    board[3:6, 3:6].reshape(9),
+    board[3:6, 6:9].reshape(9),
+    board[6:9, 0:3].reshape(9),
+    board[6:9, 3:6].reshape(9),
+    board[6:9, 6:9].reshape(9)
+  ]
+
+  for square in squareBoard:
+    if not validList(square):
+      return False
+  
+  return True
+
 
 def genPossibleRowValues(sudoku):
   temp_board = []
@@ -101,49 +138,7 @@ def genPossibleSquareValues(board):
       
   return np.array(temp_board, dtype=object)
 
-possibleColumnValues = genPossibleColumnValues(list)
-possibleRowValues = genPossibleRowValues(list)
-possibleSquareValues = genPossibleSquareValues(list)
 
-possibleValues = np.zeros((9, 9), dtype=object)
-
-for x, column in enumerate(possibleColumnValues):
-  for y, row in enumerate(column):
-    temp = []
-    for item in row:
-      if item in possibleRowValues[x, y] and item in possibleSquareValues[x, y]:
-        temp.append(item)
-
-    possibleValues[x, y] = temp
-
-
-def validRow(row):
-  temp = [1,2,3,4,5,6,7,8,9]
-
-  for item in row:
-    try:
-      temp.remove(item)
-    except ValueError:
-      return False
-
-  return len(temp) == 0
-
-def validBoard(board):
-  for row in board:
-    if not validRow(row):
-      return False
-
-  for column in range(9):
-    temp = [1,2,3,4,5,6,7,8,9]
-    for i in range(9):
-      try:
-        temp.remove(board[i][column])
-      except ValueError:
-        return False
-    if len(temp) != 0:
-      return False
-
-  return True
 
 def genPossibleRows(possibleItems):
   temp_board = []
@@ -159,7 +154,7 @@ def genPossibleRows(possibleItems):
                 for i7 in row[6]:
                   for i8 in row[7]:
                     for i9 in row[8]:
-                      if validRow([i1, i2, i3, i4, i5, i6, i7, i8, i9]):
+                      if validList([i1, i2, i3, i4, i5, i6, i7, i8, i9]):
                         temp_row.append([i1, i2, i3, i4, i5, i6, i7, i8, i9])
 
     temp_board.append(temp_row)
@@ -178,9 +173,29 @@ def genPossibleBoard(row):
               for i7 in row[6]:
                 for i8 in row[7]:
                   for i9 in row[8]:
-                    if validBoard([i1, i2, i3, i4, i5, i6, i7, i8, i9]):
+                    if validBoard(np.array([i1, i2, i3, i4, i5, i6, i7, i8, i9])):
                       temp_board.append([i1, i2, i3, i4, i5, i6, i7, i8, i9])
 
   return temp_board
-outputPuzzle(list)
+
+list = []
+
+with open('puzzle.json', 'r') as f:
+    list = np.array(json.loads(f.read()))
+
+possibleColumnValues = genPossibleColumnValues(list)
+possibleRowValues = genPossibleRowValues(list)
+possibleSquareValues = genPossibleSquareValues(list)
+
+possibleValues = np.zeros((9, 9), dtype=object)
+
+for x, column in enumerate(possibleColumnValues):
+  for y, row in enumerate(column):
+    temp = []
+    for item in row:
+      if item in possibleRowValues[x, y] and item in possibleSquareValues[x, y]:
+        temp.append(item)
+
+    possibleValues[x, y] = temp
+
 outputPuzzle(genPossibleBoard(genPossibleRows(possibleValues))[0])
