@@ -46,7 +46,10 @@ def genPossibleRowValues(sudoku):
         temp = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         for i in temp:
           if i in row:
-            temp.remove(i)
+            temp[temp.index(i)] = 0
+
+        while 0 in temp:
+          temp.remove(0)
       else:
         temp = [item]
       temp_row.append(temp)
@@ -58,33 +61,57 @@ def genPossibleColumnValues(s):
   board = s.transpose()
   temp_board = []
 
-  for row in board:
-    temp_row = []
-    for item in row:
+  for column in board:
+    temp_column = []
+    for item in column:
       if item == 0:
         temp = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         for i in temp:
-          if i in row:
-            temp.remove(i)
+          if i in column:
+            temp[temp.index(i)] = 0
+
+        while 0 in temp:
+          temp.remove(0)
+      else:
+        temp = [item]
+      temp_column.append(temp)
+    temp_board.append(temp_column)
+      
+  return np.array(temp_board, dtype=object).transpose()
+
+def genPossibleSquareValues(board):
+  temp_board = []
+
+  for x, row in enumerate(board):
+    temp_row = []
+    for y, item in enumerate(row):
+      if item == 0:
+        temp = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        square = list[x//3*3:x//3*3+3, y//3*3:y//3*3+3].reshape(9)
+        for i in temp:
+          if i in square:
+            temp[temp.index(i)] = 0
+
+        while 0 in temp:
+          temp.remove(0)
       else:
         temp = [item]
       temp_row.append(temp)
     temp_board.append(temp_row)
       
-  return np.array(temp_board, dtype=object).transpose()
+  return np.array(temp_board, dtype=object)
 
 possibleColumnValues = genPossibleColumnValues(list)
 possibleRowValues = genPossibleRowValues(list)
+possibleSquareValues = genPossibleSquareValues(list)
 
 possibleValues = np.zeros((9, 9), dtype=object)
-
-print(possibleValues)
 
 for x, column in enumerate(possibleColumnValues):
   for y, row in enumerate(column):
     temp = []
     for item in row:
-      if item in possibleRowValues[x, y]:
+      if item in possibleRowValues[x, y] and item in possibleSquareValues[x, y]:
         temp.append(item)
 
     possibleValues[x, y] = temp
