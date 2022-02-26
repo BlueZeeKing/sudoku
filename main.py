@@ -73,5 +73,20 @@ def genPossibleColumnValues(s):
       
   return np.array(temp_board, dtype=object).transpose()
 
-print(genPossibleColumnValues(list)[0, 7])
-print(genPossibleRowValues(list)[0, 7])
+possibleColumnValues = genPossibleColumnValues(list)
+possibleRowValues = genPossibleRowValues(list)
+
+possibleValues = np.zeros((9, 9), dtype=object)
+
+print(possibleValues)
+
+for x, column in enumerate(possibleColumnValues):
+  for y, row in enumerate(column):
+    temp = []
+    for item in row:
+      if item in possibleRowValues[x, y]:
+        temp.append(item)
+
+    possibleValues[x, y] = temp
+
+print(possibleValues)
