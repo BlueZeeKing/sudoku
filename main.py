@@ -43,41 +43,16 @@ def validBoard(board): # checks if the board is valid
   return True # if all of the above conditions are met, then the board is valid
 
 
-def genPossibleRowValues(sudoku): # generates possible values for each square based on row
+def genPossibleValues(sudoku): # generates possible values for each square based on row
   temp_board = [] # create a temporary board
 
-  for row in sudoku: # for each row
-    temp_row = [] # create a temporary row
-    for item in row: # for each item in the row
-      if item == 0: # if the item is zero/empty
-        temp = [1, 2, 3, 4, 5, 6, 7, 8, 9] # create a temporary array full of all possible numbers
-        for i in temp: # iterate through the temporary array
-          if i in row: # if the item is in the row/already used
-            temp[temp.index(i)] = 0 # remove the item from the temporary array
-
-        while 0 in temp: # while there are still zeros in the temporary array
-          temp.remove(0) # remove the zero from the temporary array
-      else: # otherwise/if the item is already set
-        temp = [item] # set the temporary array to the item
-      temp_row.append(temp) # add the temporary array to the temporary row
-    temp_board.append(temp_row) # add the temporary row to the temporary board
-      
-  return np.array(temp_board, dtype=object) # return the temporary board
-
-def genPossibleColumnValues(s): # generates possible values for each square based on column
-  return genPossibleRowValues(s.transpose()).transpose() # transpose the board and return possible combinations based on that (transpose it again to put it back to normal)
-
-def genPossibleSquareValues(board): # generates possible values for each square based on square
-  temp_board = [] # create a temporary board
-
-  for x, row in enumerate(board): # for each row
+  for x, row in enumerate(sudoku): # for each row
     temp_row = [] # create a temporary row
     for y, item in enumerate(row): # for each item in the row
       if item == 0: # if the item is zero/empty
         temp = [1, 2, 3, 4, 5, 6, 7, 8, 9] # create a temporary array full of all possible numbers
-        square = list[x//3*3:x//3*3+3, y//3*3:y//3*3+3].reshape(9) # create a temporary array of the current square
         for i in temp: # iterate through the temporary array
-          if i in square: # if the item is in the square/already used
+          if i in row or i in sudoku[0:, y] or i in sudoku[x//3*3:x//3*3+3, y//3*3:y//3*3+3].reshape(9): # if the item is in the row/already used
             temp[temp.index(i)] = 0 # remove the item from the temporary array
 
         while 0 in temp: # while there are still zeros in the temporary array
@@ -130,19 +105,6 @@ def genPossibleBoard(row): # generates all possible combinations for the board
 
 list = loadPuzzle() # load the puzzle
 
-possibleColumnValues = genPossibleColumnValues(list) # generate possible combinations for each square based on column
-possibleRowValues = genPossibleRowValues(list) # generate possible combinations for each square based on row
-possibleSquareValues = genPossibleSquareValues(list) # generate possible combinations for each square based on square
-
-possibleValues = np.zeros((9, 9), dtype=object) # create a temporary array to store all possible values for each square
-
-for x, row in enumerate(possibleColumnValues): # for each row
-  for y, items in enumerate(row): # for each item in that row
-    temp = [] # create a temporary array
-    for item in items: # for every possible item in that square
-      if item in possibleRowValues[x, y] and item in possibleSquareValues[x, y]: # if the item is in the row, column, and square possible values
-        temp.append(item) # add the item to the temporary array
-
-    possibleValues[x, y] = temp # add the temporary array to the possible values array
+possibleValues = genPossibleValues(list) # create a temporary array to store all possible values for each square
 
 print(outputPuzzle(genPossibleBoard(genPossibleRows(possibleValues))[0])) # generate all possible row combinations, then using those generate all possible board combonations, then print the first valid one
