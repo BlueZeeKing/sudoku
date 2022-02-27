@@ -1,5 +1,5 @@
 import numpy as np # numpy is used to make manipulation of the board array easier
-
+import time
 from utils import outputPuzzle, loadPuzzle # import functions to output the board and load the board
 
 def validPlacement(board, row, column, value): # checks if the placement is valid
@@ -50,6 +50,10 @@ def solve(grid, possible, row = 0, col = 0):
 
 list = loadPuzzle() # load the puzzle
 
+start_time = time.time() # start the timer
+
 possibleValues = genPossibleValues(list) # create a temporary array to store all possible values for each square
 
 print(outputPuzzle(list) if solve(list, possibleValues) else "No solution found") # solve the puzzle
+
+print(time.time() - start_time) # print the time it took to solve the puzzle
