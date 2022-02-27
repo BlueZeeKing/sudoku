@@ -2,46 +2,8 @@ import numpy as np # numpy is used to make manipulation of the board array easie
 
 from utils import outputPuzzle, loadPuzzle # import functions to output the board and load the board
 
-def validList(array): # checks if the array works as a row, column or square
-  temp = [1,2,3,4,5,6,7,8,9] # creates a temporary array full of all possible numbers
-
-  for item in array: # iterate through the input array
-    try: # try to remove the item from the temporary array
-      temp.remove(item)
-    except ValueError: # if the item is not in the temporary array, return false
-      return False
-
-  return len(temp) == 0 # if the temporary array is empty, and all items are used, then return true
-
-def validBoard(board): # checks if the board is valid
-  for row in board: # for each row
-    if not validList(row): # if the row is not valid
-      return False
- 
-  verticalBoard = board.transpose() # allow me to iterate through the board by column
-
-  for column in verticalBoard: # same as for each row, but now by column
-    if not validList(column):
-      return False
-
-  squareBoard = [ # create a list of all the squares
-    board[0:3, 0:3].reshape(9),
-    board[0:3, 3:6].reshape(9),
-    board[0:3, 6:9].reshape(9),
-    board[3:6, 0:3].reshape(9),
-    board[3:6, 3:6].reshape(9),
-    board[3:6, 6:9].reshape(9),
-    board[6:9, 0:3].reshape(9),
-    board[6:9, 3:6].reshape(9),
-    board[6:9, 6:9].reshape(9)
-  ]
-
-  for square in squareBoard: # same as for each row, but now by square
-    if not validList(square):
-      return False
-  
-  return True # if all of the above conditions are met, then the board is valid
-
+def validPlacement(board, row, column, value): # checks if the placement is valid
+  return not (value in board[row, :] or value in board[:, column] or value in board[row//3*3:row//3*3+3, column//3*3:column//3*3+3].reshape(9))
 
 def genPossibleValues(sudoku): # generates possible values for each square based on row
   temp_board = [] # create a temporary board
@@ -64,47 +26,30 @@ def genPossibleValues(sudoku): # generates possible values for each square based
       
   return np.array(temp_board, dtype=object) # return the temporary board
 
+def solve(grid, possible, row = 0, col = 0): 
+  if row == 8 and col == 9: # if the end has been reached
+    return True # return true
 
-def genPossibleRows(possibleItems): # generates all possible combinations for each row
-  temp_board = [] # create a temporary board
+  if col == 9: # if the end of the column has been reached
+    row += 1 # move to the next row
+    col = 0 # reset the column
 
-  for row in possibleItems: # for each row
-    temp_row = [] # create a temporary row
-    for i1 in row[0]: # for each item in the first column
-      for i2 in row[1]: # for each item in the second column, and so on
-        for i3 in row[2]:
-          for i4 in row[3]:
-            for i5 in row[4]:
-              for i6 in row[5]:
-                for i7 in row[6]:
-                  for i8 in row[7]:
-                    for i9 in row[8]:
-                      if validList([i1, i2, i3, i4, i5, i6, i7, i8, i9]): # if the combination is valid
-                        temp_row.append([i1, i2, i3, i4, i5, i6, i7, i8, i9]) # add the combination to the temporary row
+  if grid[row, col] != 0: # if the square is already set
+    return solve(grid, possible, row, col + 1) # move to the next square
 
-    temp_board.append(temp_row) # add the temporary row to the temporary board
+  for item in possible[row, col]: # for each item in the square
+    if validPlacement(grid, row, col, item): # if the placement is valid
+      grid[row, col] = item # set the square to the item
 
-  return temp_board # return the temporary board
+      if solve(grid, possible, row, col + 1): # if the next square is valid
+        return True # return true
 
-def genPossibleBoard(row): # generates all possible combinations for the board
-  temp_board = [] # create a temporary board
+    grid[row, col] = 0 # otherwise, set the square to zero
 
-  for i1 in row[0]: # for each item in the first column
-    for i2 in row[1]: # for each item in the second column, and so on
-      for i3 in row[2]:
-        for i4 in row[3]:
-          for i5 in row[4]:
-            for i6 in row[5]:
-              for i7 in row[6]:
-                for i8 in row[7]:
-                  for i9 in row[8]:
-                    if validBoard(np.array([i1, i2, i3, i4, i5, i6, i7, i8, i9])): # if the combination is valid
-                      temp_board.append([i1, i2, i3, i4, i5, i6, i7, i8, i9]) # add the combination to the temporary board
-
-  return temp_board # return the temporary board
+  return False # if none of the items are valid, return false
 
 list = loadPuzzle() # load the puzzle
 
 possibleValues = genPossibleValues(list) # create a temporary array to store all possible values for each square
 
-print(outputPuzzle(genPossibleBoard(genPossibleRows(possibleValues))[0])) # generate all possible row combinations, then using those generate all possible board combonations, then print the first valid one
+print(outputPuzzle(list) if solve(list, possibleValues) else "No solution found") # solve the puzzle
