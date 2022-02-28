@@ -1,5 +1,5 @@
 import numpy as np # numpy is used to make manipulation of the board array easier
-import time
+import time # used for timing the program
 from utils import outputPuzzle, loadPuzzle # import functions to output the board and load the board
 
 def validPlacement(board, row, column, value): # checks if the placement is valid
